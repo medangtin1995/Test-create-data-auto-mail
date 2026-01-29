@@ -68,11 +68,13 @@ if __name__ == "__main__":
     date_filter = (datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
     to_date = (datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
     items = download_items_from_dynamodb(table_name, region_name, date_filter, to_date)
-    # items = download_items_from_dynamodb(table_name, region_name, date_filter, None)
 
     # Save items to a CSV file
     df = pd.DataFrame(items)
     output_filepath = "data/items.csv"
+    
+    # Ensure data directory exists
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df.to_csv(output_filepath, index=False)
 
     print(f"Downloaded {len(items)} items from DynamoDB table '{table_name}' with date filter '{date_filter}'. {sys.argv}")

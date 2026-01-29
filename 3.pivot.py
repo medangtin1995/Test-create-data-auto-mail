@@ -85,7 +85,19 @@ def merge_parquet_files_to_csv(parquet_dir, csv_filepath):
 
 # Select request has request_id and event exists in merged events.
 def select_request_with_event(requests, event_filepath, event_name):
-    df = pd.read_csv(event_filepath)
+    try:
+        df = pd.read_csv(event_filepath)
+    except Exception as e:
+        print(f"[WARNING] Failed to read events file: {e}")
+        for request in requests:
+            request[f"{event_name}_at"] = None
+        return requests
+    
+    if df.empty:
+        for request in requests:
+            request[f"{event_name}_at"] = None
+        return requests
+    
     events = df[df["event"] == event_name]
     request_ids = events["request_id"].unique()
     event_dict = events.set_index("request_id")["timestamp"].to_dict()
@@ -102,7 +114,19 @@ def select_request_with_event(requests, event_filepath, event_name):
 
 
 def select_request_with_sg(requests, event_filepath):
-    df = pd.read_csv(event_filepath)
+    try:
+        df = pd.read_csv(event_filepath)
+    except Exception as e:
+        print(f"[WARNING] Failed to read events file for sg: {e}")
+        for request in requests:
+            request["sg_template_name"] = None
+        return requests
+    
+    if df.empty:
+        for request in requests:
+            request["sg_template_name"] = None
+        return requests
+    
     events = df[df["event"] == "processed"]
     request_ids = events["request_id"].unique()
     template_dict = events.set_index("request_id")["sg_template_name"].to_dict()
