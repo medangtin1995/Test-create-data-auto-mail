@@ -25,8 +25,11 @@ def download_s3_files(bucket_name, folder_path, local_path, profile_name):
             f"s3://{bucket_name}/{folder_path}",
             folder_path,
             "--recursive",
-            "--profile", profile_name
         ]
+        
+        # Add profile only if specified (not needed in GitHub Actions)
+        if profile_name:
+            command.extend(["--profile", profile_name])
 
         print(f"Executing command: {' '.join(command)}")
         result = subprocess.run(command, check=True, text=True, capture_output=True)
