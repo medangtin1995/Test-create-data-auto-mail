@@ -58,9 +58,24 @@ def select_request_from_items(csv_filepath, year, month, day):
 
 # Merge all parquet files into one CSV file
 def merge_parquet_files_to_csv(parquet_dir, csv_filepath):
+    # Check if directory exists
+    if not os.path.exists(parquet_dir):
+        print(f"[WARNING] Directory not found: {parquet_dir}")
+        os.makedirs(os.path.dirname(csv_filepath), exist_ok=True)
+        pd.DataFrame().to_csv(csv_filepath, index=False)
+        return
+    
     all_files = [
         f"{parquet_dir}/{f}" for f in os.listdir(parquet_dir) if f.endswith(".parquet")
     ]
+    
+    # Handle empty directory
+    if not all_files:
+        print(f"[WARNING] No parquet files found in: {parquet_dir}")
+        os.makedirs(os.path.dirname(csv_filepath), exist_ok=True)
+        pd.DataFrame().to_csv(csv_filepath, index=False)
+        return
+    
     df = pd.concat([pd.read_parquet(f) for f in all_files], ignore_index=True)
 
     # Ensure the directory exists
