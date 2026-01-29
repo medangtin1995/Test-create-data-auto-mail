@@ -69,6 +69,13 @@ def save_sheet_mapping(month_key: str, sheet_id: str) -> None:
         config_sheet = client.open_by_key(CONFIG_SHEET_ID)
         sheets_ws = config_sheet.worksheet("sheets")
         
+        # Check if month_key already exists
+        existing_data = sheets_ws.get_all_records()
+        for row in existing_data:
+            if row.get("month_key") == month_key:
+                print(f"[INFO] Mapping for {month_key} already exists, skipping save")
+                return
+        
         # Append new row
         sheets_ws.append_row([month_key, sheet_id])
         print(f"[INFO] Saved mapping: {month_key} -> {sheet_id}")
