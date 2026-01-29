@@ -1,0 +1,16 @@
+boto3
+botocore
+jmespath
+numpy
+pandas
+python-dateutil
+python-dotenv
+s3transfer
+six
+tzdata
+urllib3
+pyarrow
+gspread
+matplotlib
+seaborn
+dotenv

@@ -1,0 +1,6 @@
+service_account.json
+data/
+email-events/
+events/
+requests/
+.env
