@@ -1,6 +1,6 @@
 # Automail Analytics
 
-Automatically download and process Automail data from DynamoDB/S3, and write to Google Sheets daily.
+Automatically download and process Automail data from DynamoDB/S3, and write to Google Sheets. Supports daily automation via GitHub Actions.
 
 ## 🚀 Quick Start
 
@@ -17,6 +17,9 @@ python run_all_scripts.py --yesterday
 
 # Process specific date
 python run_all_scripts.py --date 2026-01-15
+
+# Process from 1st of current month to today
+python run_all_scripts.py --month-to-date
 
 # Process entire month
 python run_all_scripts.py --year 2026 --month 01
@@ -115,9 +118,12 @@ Go to **Settings → Secrets and variables → Actions**, add:
 1. Go to **Actions** tab
 2. Select **"Daily Automail Report"**
 3. Click **"Run workflow"**
-4. Options:
-   - `date`: Enter specific date (YYYY-MM-DD)
-   - `dry_run`: Check to preview only
+4. Select **mode**:
+   - `yesterday`: Process yesterday's data (default)
+   - `date`: Process specific date (enter in `date` field: YYYY-MM-DD)
+   - `month_to_date`: Process from 1st of current month to today
+   - `full_month`: Process entire month (enter in `year_month` field: YYYY-MM)
+5. Optional: Check `dry_run` to preview only
 
 ---
 

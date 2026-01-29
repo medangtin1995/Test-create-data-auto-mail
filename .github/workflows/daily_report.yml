@@ -6,8 +6,22 @@ on:
     - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'Run mode: yesterday (default), date, month_to_date (1st to today), full_month'
+        required: true
+        type: choice
+        options:
+          - yesterday
+          - date
+          - month_to_date
+          - full_month
+        default: yesterday
       date:
-        description: 'Specific date (YYYY-MM-DD), leave empty for yesterday'
+        description: 'Specific date (YYYY-MM-DD) - only for "date" mode'
+        required: false
+        type: string
+      year_month:
+        description: 'Year and month (YYYY-MM) - only for "full_month" mode'
         required: false
         type: string
       dry_run:
@@ -56,13 +70,37 @@ jobs:
           
       - name: Run daily report
         run: |
-          if [ -n "${{ inputs.date }}" ]; then
-            echo "Processing specific date: ${{ inputs.date }}"
-            python run_all_scripts.py --date "${{ inputs.date }}" ${{ inputs.dry_run == true && '--dry-run' || '' }}
-          else
-            echo "Processing yesterday's data"
-            python run_all_scripts.py --yesterday ${{ inputs.dry_run == true && '--dry-run' || '' }}
+          DRY_RUN_FLAG=""
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
           fi
+          
+          MODE="${{ inputs.mode }}"
+          if [ -z "$MODE" ]; then
+            MODE="yesterday"
+          fi
+          
+          case "$MODE" in
+            yesterday)
+              echo "Processing yesterday's data"
+              python run_all_scripts.py --yesterday $DRY_RUN_FLAG
+              ;;
+            date)
+              echo "Processing specific date: ${{ inputs.date }}"
+              python run_all_scripts.py --date "${{ inputs.date }}" $DRY_RUN_FLAG
+              ;;
+            month_to_date)
+              echo "Processing month to date"
+              python run_all_scripts.py --month-to-date $DRY_RUN_FLAG
+              ;;
+            full_month)
+              YEAR_MONTH="${{ inputs.year_month }}"
+              YEAR=$(echo $YEAR_MONTH | cut -d'-' -f1)
+              MONTH=$(echo $YEAR_MONTH | cut -d'-' -f2)
+              echo "Processing full month: $YEAR-$MONTH"
+              python run_all_scripts.py --year "$YEAR" --month "$MONTH" $DRY_RUN_FLAG
+              ;;
+          esac
           
       - name: Upload logs (on failure)
         if: failure()
