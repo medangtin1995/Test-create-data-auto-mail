@@ -36,6 +36,7 @@ python run_all_scripts.py --yesterday --dry-run
 ```bash
 git clone <repo-url>
 cd Test-create-data-auto-mail
+cd measurement
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -147,13 +148,15 @@ Create a Google Sheet with 2 worksheets:
 ## 📁 Project Structure
 
 ```
-├── 0.download_item.py      # Download from DynamoDB
-├── 1.download_parquet.py   # Download from S3
-├── 2.beautify.py           # Convert timestamps
-├── 3.pivot.py              # Merge events, write to Google Sheets
-├── run_all_scripts.py      # Main orchestrator
-├── auto_create_sheet.py    # Auto-create monthly sheets
-├── google_sheet_utils.py   # Google Sheets utilities
-└── .github/workflows/
-    └── daily_report.yml    # GitHub Actions workflow
+├── .github/workflows/
+│   └── daily_report.yml    # GitHub Actions workflow
+└── measurement/            # Main application code
+    ├── 0.download_item.py
+    ├── 1.download_parquet.py
+    ├── 2.beautify.py
+    ├── 3.pivot.py
+    ├── run_all_scripts.py
+    ├── auto_create_sheet.py
+    ├── google_sheet_utils.py
+    └── requirements.txt
 ```
