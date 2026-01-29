@@ -54,7 +54,8 @@ def load_mapping_from_sheet() -> dict:
         # Load sheets from "sheets" worksheet
         sheets_ws = config_sheet.worksheet("sheets")
         sheets_data = sheets_ws.get_all_records()
-        sheets = {row["month_key"]: row["sheet_id"] for row in sheets_data}
+        # Convert month_key to string (Google Sheets may return as int)
+        sheets = {str(row["month_key"]): row["sheet_id"] for row in sheets_data}
         
         return {"templates": templates, "sheets": sheets}
     except Exception as e:
