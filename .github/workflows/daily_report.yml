@@ -1,0 +1,76 @@
+name: Daily Automail Report
+
+on:
+  schedule:
+    # 8:00 AM JST = 23:00 UTC (previous day)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Specific date (YYYY-MM-DD), leave empty for yesterday'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run mode (preview without executing)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  process-daily-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ap-northeast-1
+          
+      - name: Setup Google credentials
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > service_account.json
+        
+      - name: Create .env file
+        run: |
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+          echo "TABLE_NAME=${{ secrets.TABLE_NAME }}" >> .env
+          echo "REGION=ap-northeast-1" >> .env
+          echo "CONFIG_SHEET_ID=${{ secrets.CONFIG_SHEET_ID }}" >> .env
+          
+      - name: Run daily report
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            echo "Processing specific date: ${{ inputs.date }}"
+            python run_all_scripts.py --date "${{ inputs.date }}" ${{ inputs.dry_run == true && '--dry-run' || '' }}
+          else
+            echo "Processing yesterday's data"
+            python run_all_scripts.py --yesterday ${{ inputs.dry_run == true && '--dry-run' || '' }}
+          fi
+          
+      - name: Upload logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-logs
+          path: |
+            data/
+            events/
+            requests/
+          retention-days: 7

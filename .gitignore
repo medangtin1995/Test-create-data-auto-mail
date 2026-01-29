@@ -4,3 +4,4 @@ email-events/
 events/
 requests/
 .env
+__pycache__/

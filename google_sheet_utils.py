@@ -32,3 +32,34 @@ def update_google_sheet(sheet_id, sheet_name, range_names, values, creds_file):
         logging.info(f"Successfully updated range {range_name} in Google Sheet.")
     except Exception as e:
         logging.error(f"Error updating Google Sheet: {str(e)}")
+
+
+def clone_template_sheet(template_id: str, new_name: str, creds_file: str) -> str:
+    """
+    Clone a Google Sheet template to create a new sheet.
+
+    Args:
+        template_id: The ID of the template Google Sheet to clone.
+        new_name: The name for the new cloned sheet.
+        creds_file: Path to the service account JSON credentials file.
+
+    Returns:
+        The ID of the newly created Google Sheet.
+    """
+    try:
+        scope = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive"
+        ]
+        creds = Credentials.from_service_account_file(creds_file, scopes=scope)
+        client = gspread.authorize(creds)
+
+        # Copy the template
+        new_sheet = client.copy(template_id, title=new_name)
+        new_sheet_id = new_sheet.id
+        
+        logging.info(f"Successfully cloned template to: {new_name} ({new_sheet_id})")
+        return new_sheet_id
+    except Exception as e:
+        logging.error(f"Error cloning template: {str(e)}")
+        raise

@@ -111,14 +111,16 @@ load_dotenv()
 # year = os.getenv("FULL_YEAR")
 # day = os.getenv("FULL_DAY")
 
-if len(sys.argv) >= 4:
+if len(sys.argv) >= 5:
     year = sys.argv[1]
     month = sys.argv[2]
     day = sys.argv[3]
+    sheet_id = sys.argv[4]
 else:
     year = os.getenv('FULL_YEAR')
     month = os.getenv('FULL_MONTH')
     day = os.getenv('FULL_DAY')
+    sheet_id = os.getenv('SHEET_ID')
 
 csv_filepath = f"data/{year}{month}/items_with_japan_time_{year}{month}{day}.csv"
 requests = select_request_from_items(csv_filepath, year, month, day)
@@ -156,8 +158,7 @@ print(f"Writing requests to {output_filepath}")
 requests_df = pd.DataFrame(requests)
 requests_df = requests_df.replace({np.nan: None})
 
-# Update Google Sheets
-sheet_id = os.getenv("SHEET_ID")
+# Update Google Sheets (sheet_id from command line or env)
 sheet_name = day
 range_names = [
     f"A2:A{len(requests) + 1}",
