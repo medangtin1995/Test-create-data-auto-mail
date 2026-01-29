@@ -1,7 +1,11 @@
 service_account.json
-data/
-email-events/
-events/
-requests/
+data/*
+!data/.gitkeep
+email-events/*
+!email-events/.gitkeep
+events/*
+!events/.gitkeep
+requests/*
+!requests/.gitkeep
 .env
 __pycache__/
