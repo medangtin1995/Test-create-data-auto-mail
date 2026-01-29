@@ -118,7 +118,7 @@ def get_or_create_monthly_sheet(year: str, month: str, dry_run: bool = False) ->
     # Get appropriate template
     template_id = get_template_id(int(year), int(month), mapping.get("templates", {}))
     days_in_month = calendar.monthrange(int(year), int(month))[1]
-    new_name = f"Automail {year}{month}"
+    new_name = f"Requests {year}/{month}"
     
     if not template_id:
         print(f"[WARNING] No template ID found. Check 'templates' sheet in config.")
